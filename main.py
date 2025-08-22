@@ -81,15 +81,17 @@ def main(args, cfg):
     cfg_data = cfg.get("data", {})
     train_data = Datasets(
         cfg_data.get("root", "data/LSA-64"),
-        "train",
+        cfg_data.get("train_dir", "train"),
         augment=True,
         keypoints_index=cfg_data.get("keypoints_index", []),
+        cfg=cfg_data,
     )
     test_data = Datasets(
         cfg_data.get("root", "data/LSA-64"),
-        "test",
+        cfg_data.get("test_dir", "test"),
         augment=False,
         keypoints_index=cfg_data.get("keypoints_index", []),
+        cfg=cfg_data,
     )
 
     train_dataloader = DataLoader(

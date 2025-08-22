@@ -6,7 +6,7 @@ safetensors_2_pth.py
 f.py
 docs
 outputs
-*.txt
+# *.txt
 scripts/
 *.pyc
 *.pyo

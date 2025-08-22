@@ -14,7 +14,9 @@ from augmentations import (
 
 
 class Datasets(torch.utils.data.Dataset):
-    def __init__(self, root, split, shuffle=True, augment=False, keypoints_index=[]):
+    def __init__(
+        self, root, split, shuffle=True, augment=False, keypoints_index=[], cfg={}
+    ):
         self.root = root
         self.split = split
         self.augment = augment
