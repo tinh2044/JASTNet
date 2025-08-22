@@ -255,7 +255,7 @@ def main(args, cfg):
         if os.path.exists(prev_chkpt):
             os.remove(prev_chkpt)
         for checkpoint_path in checkpoint_paths:
-            utils.save_checkpoints(
+            utils.save_on_master(
                 {
                     "model_state_dict": model.state_dict(),
                     "optimizer_state_dict": optimizer.state_dict(),
