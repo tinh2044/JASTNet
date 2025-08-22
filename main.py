@@ -225,7 +225,7 @@ def main(args, cfg):
             log_dir=f"{log_dir}/eval/test",
         )
         print(
-            f"Test accuracy of the network on the {len(test_dataloader)} test samples: {test_results['accuracy']:.3f}"
+            f"Test acc of the network on the {len(test_dataloader)} test samples: {test_results['acc']:.3f}"
         )
         print(f"* TEST LOSS {test_results['loss']:.3f}")
         return
@@ -235,7 +235,7 @@ def main(args, cfg):
         f"Start training for {args.epochs} epochs and start epoch: {args.start_epoch}"
     )
     start_time = time.time()
-    best_accuracy = 0.0
+    best_acc = 0.0
 
     for epoch in range(args.start_epoch, args.epochs):
         train_results = train_one_epoch(
@@ -276,9 +276,9 @@ def main(args, cfg):
             log_dir=f"{log_dir}/test",
         )
 
-        # Save best model based on accuracy
-        if test_results["accuracy"] > best_accuracy:
-            best_accuracy = test_results["accuracy"]
+        # Save best model based on acc
+        if test_results["acc"] > best_acc:
+            best_acc = test_results["acc"]
             checkpoint_paths = [output_dir / "best_checkpoint.pth"]
             for checkpoint_path in checkpoint_paths:
                 utils.save_on_master(
@@ -291,9 +291,7 @@ def main(args, cfg):
                     checkpoint_path,
                 )
 
-        print(
-            f"* TEST ACCURACY {test_results['accuracy']:.3f} Best ACCURACY {best_accuracy:.3f}"
-        )
+        print(f"* TEST acc {test_results['acc']:.3f} Best acc {best_acc:.3f}")
 
         # Log results
         log_results = {
