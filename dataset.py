@@ -1,4 +1,3 @@
-import json
 import pickle
 
 import numpy as np
@@ -53,8 +52,6 @@ class Datasets(torch.utils.data.Dataset):
         if self.augment and np.random.uniform(0, 1) < 0.4:
             keypoints = self.apply_augment(keypoints)
 
-        # keypoints = self.normalize_keypoints(keypoints)
-
         keypoints = torch.from_numpy(keypoints).float()
         label = torch.tensor(label, dtype=torch.long)
 
@@ -87,12 +84,6 @@ class Datasets(torch.utils.data.Dataset):
                 aug = True
 
         return keypoints
-
-    def query_class(self, class_name, _max=5):
-        key_querys = [self.list_key.index(x) for x in self.list_key if class_name in x][
-            :_max
-        ]
-        return [self[i] for i in key_querys]
 
     def __len__(self):
         return len(self.list_key)
@@ -133,8 +124,3 @@ class Datasets(torch.utils.data.Dataset):
             "attention_mask": attention_mask,
             "labels": labels,
         }
-
-
-if __name__ == "__main__":
-    x = np.random.randint(0, 3)
-    print(type(x))
