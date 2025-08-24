@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 
-# Import các module cần thiết
 try:
     from models.layers import (
         ClassificationHead,
@@ -85,20 +84,12 @@ class JASTNet(nn.Module):
         W:    (B,T,K)
         """
         barX, W = self.pre(x)
-        # barX = barX[:, :, self.joins_idx, :]
-        # 1. Joint embedding
         E0 = self.joint_embed(barX, W)  # (B,T,K,d)
-        # 2. Spatial encoder
         Es = self.spatial_enc(E0, barX, W)  # (B,T,K,d)
-        # 3. Frame summary
         S = self.frame_summary(Es, W)  # (B,T,d)
-        # 4. Temporal bottleneck (sequence -> Z hoặc S')
         Z, S_out = self.temp_bottleneck(S)  # (B,M,d), (B,T,d)
-        # 5. Motion residual branch
         R = self.motion_branch(x, W) + S_out  # (B,T,d)
-        # 6. Cross-fusion memory-motion
         Z_star, F = self.cross_fusion(Z, R)  # (B,M,d), (B,T,d)
-        # 7. Classification head
         logits = self.head(F, Z_star)  # (B,num_classes)
         return logits
 

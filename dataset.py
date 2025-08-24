@@ -20,14 +20,11 @@ class Datasets(torch.utils.data.Dataset):
         self.root = root
         self.split = split
         self.augment = augment
-        self.keypoints_index = keypoints_index
-        with open(f"{self.root}/label2id.json", "r") as f:
-            self.label2id = json.load(f)
-
-        with open(f"{self.root}/id2label.json", "r") as f:
-            self.id2label = json.load(f)
-
         self.data_dir = f"{root}/{split}"
+        self.keypoints_index = keypoints_index
+
+        self.label2id = {k: v for v, k in enumerate(os.listdir(self.data_dir))}
+        self.id2label = {v: k for k, v in self.label2id.items()}
 
         self.list_key = [
             f"{self.data_dir}/{x}/{y}"
