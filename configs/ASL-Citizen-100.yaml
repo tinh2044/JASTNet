@@ -12,7 +12,7 @@ data:
 
 model:
   d: 128
-  num_classes: 64
+  num_classes: 100
   heads: 8
   ff_dim: 256
   
