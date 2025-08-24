@@ -1,4 +1,3 @@
-# Re-run FrameSummary code and test to produce outputs.
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -49,9 +48,8 @@ class FrameSummary(nn.Module):
             self.out_ln = None
 
     def forward(self, E_S: torch.Tensor, W: torch.Tensor) -> torch.Tensor:
-        # E_S: (B,T,K,d) hoặc (T,K,d), W: (B,T,K) hoặc (T,K)
+        # E_S: (B,T,K,d), (T,K,d), W: (B,T,K), (T,K)
         if E_S.dim() == 3:
-            # Không có batch size, thêm batch dimension
             E_S = E_S.unsqueeze(0)  # (1,T,K,d)
             W = W.unsqueeze(0)  # (1,T,K)
             has_batch = False
@@ -102,14 +100,12 @@ class FrameSummary(nn.Module):
         if self.out_ln is not None:
             S = self.out_ln(S)
 
-        # Nếu input ban đầu không có batch, trả về không có batch
         if not has_batch:
             S = S.squeeze(0)  # (T,d)
 
         return S
 
 
-# Test
 if __name__ == "__main__":
     torch.manual_seed(1)
     B = 2  # batch size
@@ -124,7 +120,6 @@ if __name__ == "__main__":
     }
     parts_order = ["body", "lh", "rh"]
 
-    # Test với batch size
     E_S_batch = torch.randn(B, T, K, d)
     W_batch = torch.rand(B, T, K)
 
@@ -138,7 +133,6 @@ if __name__ == "__main__":
     print("Batch output - S.shape:", S_batch.shape)
     print("Expected shape: ({}, {}, {})".format(B, T, d))
 
-    # Test không có batch size
     E_S_no_batch = torch.randn(T, K, d)
     W_no_batch = torch.rand(T, K)
 

@@ -109,23 +109,6 @@ def evaluate_fn(
     metric_logger.synchronize_between_processes()
     print(f"Test stats: {metric_logger}")
 
-    # Save results if specified
-    if results_path:
-        import json
-
-        results = {
-            "epoch": epoch,
-            "metrics": {
-                k: meter.global_avg for k, meter in metric_logger.meters.items()
-            },
-            "predictions": all_predictions,
-            "targets": all_targets,
-        }
-        with open(results_path, "w") as f:
-            json.dump(results, f, indent=2)
-
-    return {k: meter.global_avg for k, meter in metric_logger.meters.items()}
-
 
 def validate_one_epoch(args, model, data_loader, epoch, print_freq=50, log_dir="logs"):
     """Validate for one epoch for ISLR"""

@@ -1,4 +1,3 @@
-# Fixing the indexing bug and re-running the SpatialEncoder test.
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -130,9 +129,7 @@ class SpatialEncoder(nn.Module):
     def forward(
         self, E0: torch.Tensor, barX: torch.Tensor, W: torch.Tensor
     ) -> torch.Tensor:
-        # E0: (B,T,K,d) hoặc (T,K,d), barX: (B,T,K,2) hoặc (T,K,2), W: (B,T,K) hoặc (T,K)
         if E0.dim() == 3:
-            # Không có batch size, thêm batch dimension
             E0 = E0.unsqueeze(0)  # (1,T,K,d)
             barX = barX.unsqueeze(0)  # (1,T,K,2)
             W = W.unsqueeze(0)  # (1,T,K)
@@ -144,17 +141,15 @@ class SpatialEncoder(nn.Module):
         for layer in self.layers:
             x = layer(x, barX, W)
 
-        # Nếu input ban đầu không có batch, trả về không có batch
         if not has_batch:
             x = x.squeeze(0)  # (T,K,d)
 
         return x
 
 
-# Test
 if __name__ == "__main__":
     torch.manual_seed(1)
-    B = 2  # batch size
+    B = 2
     T = 16
     K = 21
     d = 64
@@ -162,7 +157,6 @@ if __name__ == "__main__":
     L_s = 2
     d_ff = 128
 
-    # Test với batch size
     E0_batch = torch.randn(B, T, K, d)
     barX_batch = torch.randn(B, T, K, 2)
     W_batch = torch.rand(B, T, K)
@@ -176,7 +170,6 @@ if __name__ == "__main__":
     print("Batch output - E_S.shape:", E_S_batch.shape)
     print("Expected shape: ({}, {}, {}, {})".format(B, T, K, d))
 
-    # Test không có batch size
     E0_no_batch = torch.randn(T, K, d)
     barX_no_batch = torch.randn(T, K, 2)
     W_no_batch = torch.rand(T, K)

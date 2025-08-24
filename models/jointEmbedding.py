@@ -44,22 +44,22 @@ class JointEmbedding(nn.Module):
         t = self.conf_phi_tau
         return (c / (c + t)).clamp(0.0, 1.0)
 
-    def forward(self, X_bar: torch.Tensor, W: torch.Tensor) -> torch.Tensor:
-        if X_bar.dim() == 3:
-            X_bar = X_bar.unsqueeze(0)  # (1,T,K,2)
+    def forward(self, X: torch.Tensor, W: torch.Tensor) -> torch.Tensor:
+        if X.dim() == 3:
+            X = X.unsqueeze(0)  # (1,T,K,2)
             W = W.unsqueeze(0)  # (1,T,K)
             has_batch = False
         else:
             has_batch = True
 
-        assert X_bar.dim() == 4 and X_bar.size(3) == 2, (
-            f"X_bar must be of shape (B, T, K, 2) or (T, K, 2), got {X_bar.shape}"
+        assert X.dim() == 4 and X.size(3) == 2, (
+            f"X must be of shape (B, T, K, 2) or (T, K, 2), got {X.shape}"
         )
-        B, T, K, _ = X_bar.shape
+        B, T, K, _ = X.shape
         assert K == self.K, f"JointEmbedding K mismatch: got {K} vs init {self.K}"
 
-        x = X_bar[:, :, :, 0].unsqueeze(-1)  # (B,T,K,1)
-        y = X_bar[:, :, :, 1].unsqueeze(-1)  # (B,T,K,1)
+        x = X[:, :, :, 0].unsqueeze(-1)  # (B,T,K,1)
+        y = X[:, :, :, 1].unsqueeze(-1)  # (B,T,K,1)
 
         p = torch.matmul(x, self.W_x.T) + torch.matmul(y, self.W_y.T)  # (T,K,d)
         p = p + self.b_e.view(1, 1, -1)
@@ -68,14 +68,12 @@ class JointEmbedding(nn.Module):
         q = p + joint_emb_exp
 
         if len(self.part_to_indices) > 0:
-            part_idx_for_joint = torch.full(
-                (K,), -1, dtype=torch.long, device=X_bar.device
-            )
+            part_idx_for_joint = torch.full((K,), -1, dtype=torch.long, device=X.device)
             for pid, pname in enumerate(self.parts_order):
                 idxs = self.part_to_indices.get(pname, [])
                 if len(idxs) > 0:
                     part_idx_for_joint[idxs] = pid
-            part_emb_per_joint = torch.zeros(K, self.d, device=X_bar.device)
+            part_emb_per_joint = torch.zeros(K, self.d, device=X.device)
             valid_mask = part_idx_for_joint >= 0
             if valid_mask.any():
                 part_emb_per_joint[valid_mask] = self.part_emb[
@@ -106,10 +104,9 @@ class JointEmbedding(nn.Module):
         return E0
 
 
-# Unit test / example usage
 if __name__ == "__main__":
     torch.manual_seed(1)
-    B = 2  # batch size
+    B = 2
     T = 32
     K = 21
     d = 64
@@ -129,7 +126,6 @@ if __name__ == "__main__":
         conf_phi_tau=1e-3,
     )
 
-    # Test với batch size
     X_batch = torch.randn(B, T, K, 2) * 100.0
     C_batch = torch.rand(B, T, K)
 
@@ -137,7 +133,6 @@ if __name__ == "__main__":
     print("Batch input - E0.shape:", E0_batch.shape)
     print("Expected shape: ({}, {}, {}, {})".format(B, T, K, d))
 
-    # Test không có batch size
     X_no_batch = torch.randn(T, K, 2) * 100.0
     C_no_batch = torch.rand(T, K)
 
