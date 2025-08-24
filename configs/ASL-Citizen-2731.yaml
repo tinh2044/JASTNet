@@ -1,0 +1,81 @@
+data:
+  root: "./data/ASL-Citizen-2731"
+  train_dir: "train"
+  test_dir: "test"
+  max_sequence_length: 64
+  keypoints_index: [11, 12,13,14,15,16, 33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53, 54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74]
+
+model:
+  d: 128
+  num_classes: 2731
+  heads: 8
+  ff_dim: 512 
+  
+  index:
+    body: 0
+    left: 5
+    right: 4
+  parts:
+    body: [0, 1, 2, 3, 4, 5]
+    lh: [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26]
+    rh: [27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47]
+
+  preprocessor: 
+    eps: 0.000001
+    conf_alpha: 1.0
+
+  joint_embedding:
+    d_bottleneck: 64
+    conf_phi_tau: 0.001
+
+  spatial_encoder:
+    L_s: 8
+    rel_bias_hidden: 32
+    conf_phi_tau: 0.001
+
+  frame_summary:
+    use_layernorm: true
+    eps: 0.000001
+
+  temp_bottleneck:
+    m_slots: 8
+    num_layers: 1
+    mode: "bottleneck"
+    use_positional: false
+    max_len: 512
+
+  motion_branch:
+    kernel_size: 3
+    gamma_v: 1.0
+    gamma_a: 0.5
+
+  cross_fusion:
+    ff_dim_z: 512
+    ff_dim_r: 512
+    layers: 4
+
+  classification_head:
+    use_memory: true
+
+  dropout: 0.0
+  activation_dropout: 0.1
+  attention_dropout: 0.0
+
+training:
+  model_dir: "./outputs_ASL-Citizen-2731/"
+  optimization:
+    optimizer:
+      name: "AdamW"
+      lr: 0.0001
+      weight_decay: 0.0001
+      betas: [0.9, 0.999]
+    
+    scheduler:
+      name: "CosineAnnealingLR"
+      T_max: 100
+      eta_min: 0.00001
+
+evaluation:
+  metrics: ["accuracy", "precision", "recall", "f1"]
+  save_images: false
+  save_samples: false

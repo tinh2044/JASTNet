@@ -240,6 +240,7 @@ def main(args, cfg):
     best_acc = 0.0
 
     for epoch in range(args.start_epoch, args.epochs):
+        logger.info(f"Epoch {epoch} of {args.epochs}")
         train_results = train_one_epoch(
             args,
             model,
@@ -266,7 +267,7 @@ def main(args, cfg):
                 },
                 checkpoint_path,
             )
-        print()
+        logger.info("")
 
         # Evaluate
         test_results = evaluate_fn(
@@ -293,7 +294,7 @@ def main(args, cfg):
                     checkpoint_path,
                 )
 
-        print(f"* TEST acc {test_results['acc']:.3f} Best acc {best_acc:.3f}")
+        logger.info(f"* TEST acc {test_results['acc']:.3f} Best acc {best_acc:.3f}")
 
         # Log results
         log_results = {
@@ -302,13 +303,13 @@ def main(args, cfg):
             "epoch": epoch,
             "n_parameters": n_parameters,
         }
-        print()
+        logger.info("")
         with (output_dir / "log.txt").open("a") as f:
             f.write(json.dumps(log_results) + "\n")
 
     total_time = time.time() - start_time
     total_time_str = str(datetime.timedelta(seconds=int(total_time)))
-    print("Training time {}".format(total_time_str))
+    logger.info(f"Training time {total_time_str}")
 
 
 if __name__ == "__main__":
