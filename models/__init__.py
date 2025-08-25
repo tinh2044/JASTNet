@@ -96,7 +96,7 @@ class JASTNet(nn.Module):
 if __name__ == "__main__":
     import yaml
 
-    config_path = "./configs/ASL-Citizen-100.yaml"
+    config_path = "./configs/ASL-Citizen-200.yaml"
     with open(config_path, "r", encoding="utf-8") as f:
         cfg = yaml.safe_load(f)
 
@@ -114,6 +114,7 @@ if __name__ == "__main__":
     x = torch.randn(batch_size, sequence_length, num_joints, 2)
 
     model = JASTNet(**model_cfg)
-
+    num_parameters = sum(p.numel() for p in model.parameters())
+    print(f"Number of parameters: {num_parameters:,}")
     logits = model(x)
     print(logits.shape)
