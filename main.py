@@ -104,7 +104,15 @@ def main(args, cfg):
     if is_distributed:
         device = torch.device(f"cuda:{local_rank}")
     else:
-        device = torch.device(args.device if torch.cuda.is_available() else "cpu")
+        # Prefer CUDA when available unless user explicitly set a different device
+        device = (
+            torch.device(args.device)
+            if args.device and (args.device.startswith("cuda") or args.device == "cpu")
+            else torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        )
+
+    # Ensure args.device reflects the selected device for downstream .to(args.device)
+    args.device = device
 
     seed = args.seed + rank  # Different seed for each rank
     # Set seed
