@@ -29,14 +29,6 @@ def get_args_parser():
     parser.add_argument("--finetune", default="", help="finetune from checkpoint")
 
     parser.add_argument(
-        "--world_size", default=1, type=int, help="number of distributed processes"
-    )
-    parser.add_argument(
-        "--dist_url", default="env://", help="url used to set up distributed training"
-    )
-    parser.add_argument("--local_rank", default=0, type=int)
-
-    parser.add_argument(
         "--device", default="cpu", help="device to use for training / testing"
     )
     parser.add_argument("--seed", default=42, type=int)
@@ -68,9 +60,8 @@ def main(args, cfg):
 
     device = torch.device(args.device if torch.cuda.is_available() else "cpu")
 
-    utils.init_distributed_mode(args)
 
-    seed = args.seed + utils.get_rank()
+    seed = args.seed
     # Set seed
     torch.manual_seed(seed)
     np.random.seed(seed)
