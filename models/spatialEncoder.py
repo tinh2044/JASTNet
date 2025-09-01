@@ -56,7 +56,7 @@ class SpatialAttentionLayer(nn.Module):
         return (c / (c + t)).clamp(0.0, 1.0)
 
     def forward(
-        self, X_in: torch.Tensor, barX_t: torch.Tensor, W_t: torch.Tensor
+        self, X_in: torch.Tensor, X_t: torch.Tensor, W_t: torch.Tensor
     ) -> torch.Tensor:
         B, T, K, d = X_in.shape
         assert d == self.d
@@ -78,7 +78,7 @@ class SpatialAttentionLayer(nn.Module):
         M_t = M_t.unsqueeze(2)  # (B, T, 1, K, K)
         scores = scores + M_t
 
-        diff = barX_t.unsqueeze(3) - barX_t.unsqueeze(2)  # (B, T, K, K, 2)
+        diff = X_t.unsqueeze(3) - X_t.unsqueeze(2)  # (B, T, K, K, 2)
         D = torch.norm(diff, dim=-1)  # (B, T, K, K)
         B_t = self.rel_bias(D)  # (B, T, K, K)
         B_t = B_t.unsqueeze(2)  # (B, T, 1, K, K)
@@ -127,11 +127,11 @@ class SpatialEncoder(nn.Module):
         )
 
     def forward(
-        self, E0: torch.Tensor, barX: torch.Tensor, W: torch.Tensor
+        self, E0: torch.Tensor, X: torch.Tensor, W: torch.Tensor
     ) -> torch.Tensor:
         if E0.dim() == 3:
             E0 = E0.unsqueeze(0)  # (1,T,K,d)
-            barX = barX.unsqueeze(0)  # (1,T,K,2)
+            X = X.unsqueeze(0)  # (1,T,K,2)
             W = W.unsqueeze(0)  # (1,T,K)
             has_batch = False
         else:
@@ -139,7 +139,7 @@ class SpatialEncoder(nn.Module):
 
         x = E0
         for layer in self.layers:
-            x = layer(x, barX, W)
+            x = layer(x, X, W)
 
         if not has_batch:
             x = x.squeeze(0)  # (T,K,d)
@@ -158,26 +158,26 @@ if __name__ == "__main__":
     d_ff = 128
 
     E0_batch = torch.randn(B, T, K, d)
-    barX_batch = torch.randn(B, T, K, 2)
+    X_batch = torch.randn(B, T, K, 2)
     W_batch = torch.rand(B, T, K)
 
     encoder = SpatialEncoder(d=d, heads=heads, L_s=L_s, d_ff=d_ff)
-    E_S_batch = encoder(E0_batch, barX_batch, W_batch)
+    E_S_batch = encoder(E0_batch, X_batch, W_batch)
 
     print("Batch input - E0.shape:", E0_batch.shape)
-    print("Batch input - barX.shape:", barX_batch.shape)
+    print("Batch input - X.shape:", X_batch.shape)
     print("Batch input - W.shape:", W_batch.shape)
     print("Batch output - E_S.shape:", E_S_batch.shape)
     print("Expected shape: ({}, {}, {}, {})".format(B, T, K, d))
 
     E0_no_batch = torch.randn(T, K, d)
-    barX_no_batch = torch.randn(T, K, 2)
+    X_no_batch = torch.randn(T, K, 2)
     W_no_batch = torch.rand(T, K)
 
-    E_S_no_batch = encoder(E0_no_batch, barX_no_batch, W_no_batch)
+    E_S_no_batch = encoder(E0_no_batch, X_no_batch, W_no_batch)
 
     print("\nNo batch - E0.shape:", E0_no_batch.shape)
-    print("No batch - barX.shape:", barX_no_batch.shape)
+    print("No batch - X.shape:", X_no_batch.shape)
     print("No batch - W.shape:", W_no_batch.shape)
     print("No batch output - E_S.shape:", E_S_no_batch.shape)
     print("Expected shape: ({}, {}, {})".format(T, K, d))
