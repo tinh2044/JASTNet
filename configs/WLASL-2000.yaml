@@ -9,7 +9,7 @@ model:
   d: 128
   num_classes: 2000
   heads: 8
-  ff_dim: 256
+  ff_dim: 512 
   
   index:
     body: 0
@@ -29,7 +29,7 @@ model:
     conf_phi_tau: 0.001
 
   spatial_encoder:
-    L_s: 4
+    L_s: 8
     rel_bias_hidden: 32
     conf_phi_tau: 0.001
 
@@ -50,9 +50,9 @@ model:
     gamma_a: 0.5
 
   cross_fusion:
-    ff_dim_z: 128
-    ff_dim_r: 128
-    layers: 1
+    ff_dim_z: 512
+    ff_dim_r: 512
+    layers: 4
 
   classification_head:
     use_memory: true
